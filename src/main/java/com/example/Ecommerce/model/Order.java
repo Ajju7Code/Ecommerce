@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 @Entity
@@ -21,6 +22,7 @@ public class Order {
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
 
     @ManyToMany

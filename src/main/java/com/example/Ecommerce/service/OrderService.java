@@ -5,6 +5,7 @@ import com.example.Ecommerce.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -23,18 +24,30 @@ public class OrderService {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Cart is empty"));
 
+        if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+            throw new RuntimeException("Cart is empty");
+        }
+
         Order order = new Order();
         order.setUser(user);
-        order.setProducts(cart.getProducts());
+        
+        // Extract products from CartItems
+        List<Product> products = cart.getCartItems().stream()
+                .map(CartItem::getProduct)
+                .collect(Collectors.toList());
+        order.setProducts(products);
 
-        double totalPrice = cart.getProducts().stream()
-                .mapToDouble(Product::getPrice)
+        // Calculate total price: (product price × ordered quantity) for each item
+        double totalPrice = cart.getCartItems().stream()
+                .mapToDouble(cartItem -> cartItem.getProduct().getPrice() * cartItem.getOrderedQuantity())
                 .sum();
 
         order.setTotalPrice(totalPrice);
         order.setStatus("PLACED");
 
-        cart.getProducts().clear();
+        // Clear cart items after order
+        cart.getCartItems().clear();
+        cartRepository.save(cart);
 
         return orderRepository.save(order);
     }
