@@ -1,0 +1,34 @@
+# Development configuration - extends base docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  postgres:
+    environment:
+      # Enable detailed logging in development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    environment:
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+      LOGGING_LEVEL_ROOT: INFO
+      LOGGING_LEVEL_COM_EXAMPLE_ECOMMERCE: DEBUG
+    ports:
+      - "8080:8080"
+      - "5005:5005" # Debug port
+    healthcheck:
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  ecommerce-network:
+    driver: bridge

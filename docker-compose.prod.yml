@@ -1,0 +1,47 @@
+# Production configuration - extends base docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+version: '3.8'
+
+services:
+  postgres:
+    environment:
+      # Production security settings
+      POSTGRES_INITDB_ARGS: "-c password_encryption=scram-sha-256"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  app:
+    environment:
+      SPRING_JPA_SHOW_SQL: "false"
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "false"
+      LOGGING_LEVEL_ROOT: WARN
+      LOGGING_LEVEL_COM_EXAMPLE_ECOMMERCE: INFO
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Remove debug port in production
+    ports:
+      - "8080:8080"
+    healthcheck:
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  ecommerce-network:
+    driver: bridge

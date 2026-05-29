@@ -7,12 +7,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.CascadeType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-
+import com.example.Ecommerce.model.User;
 
 @Entity
 @Data
@@ -23,7 +23,7 @@ public class Cart {
     private Long id;
 
     @OneToOne
-    @JsonIgnore
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
